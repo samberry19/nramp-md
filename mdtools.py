@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import mdtraj as md
 
+from sklearn.cluster import SpectralClustering
+
 def selection_distance_matrix(traj, a, b):
 
     t1 = traj.xyz[:,a,None,:]
@@ -219,3 +221,48 @@ def NSphereTransform(dihs):
     else:
         print('Please enter a set of at least one and no more than 5 angles')
         return None
+
+
+def AcceleratedSpectralClustering(data, n_clusters, nsamples, gamma=0.01, weighting_constant=1):
+
+    '''
+    This function is an accelerated version of Spectral Clustering that is capable of performing similarly
+    using much less memory. It is especially designed for datasets where clusterings are of very unequal
+    sizes, such that some clusters have enormous numbers of data points while others do not; this kind
+    of data structure can be difficult to get reliable clustering on.
+
+    The major problem with Spectral Clustering is that it is approximately O(n^2) in both time and memory
+    usage, which makes it intractable for large datasets. This function gets around this problem by subsampling
+    the alignment, running spectral clustering on this subsampling, and then assigning the rest of the points to be
+    the same as their nearest neighbor. Doing this naïvely would run the risk of picking too few points from clusters
+    with relatively few points; the function corrects for this by first weighting each point based on how many
+    points are in its local neighborhood. The extent of this weighting can be controlled with the weighting_constant
+    parameter (>1 will lead to more neighborhood reweighting and <1 will lead to less). It will therefore sample
+    close to every point in very low-density regions and a very small fraction of points in high-density regions.
+
+    Inputs
+    ------------------
+    data: your dataset as a numpy array of shape N_points x N_features
+    nclusters: how many clusters to select
+    nsamples: how many samples to draw from the dataset for fitting the embedding model.
+    gamma: gamma parameter for spectral clustering, defaults to 0.01.
+    weighting constant: scaling factor for setting sequence weights
+    '''
+
+    print('Calculating weights per point...')
+    x = np.array([1/np.sum(np.exp(-cdist([d], data)**2/2/weighting_constant**2)) for d in data])
+    xnorm = x/np.sum(x)
+
+    print('Performing spectral clustering...')
+    sc = SpectralClustering(n_clusters=n_clusters, gamma=gamma)
+    data_subset = data[np.random.choice(np.arange(len(data)), size=nsamples, replace=False, p=xnorm)]
+
+    sc.fit(data_subset)
+
+    final_labels = []
+
+    print('Assigning nearest neighbors...')
+    for d in data:
+        final_labels.append(sc.labels_[np.argmin(cdist([d], data_subset))])
+
+    return np.array(final_labels)
