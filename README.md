@@ -10,8 +10,10 @@ The scripts contained are:
 * **rmsf.py**: Python script to calculate root mean square fluctuation (RMSF) over all frames of a simulation
 * **water_occupancy.py**: Python script to calculate water occupancies in a site defined by a set of residues. Also has a required config csv file (an example of which is in **water_residues_config.csv**)
 
-Other plots were made using Jupyter notebooks, which I plan to upload here eventually.
+Other plots were made using Jupyter notebooks - see "Plotting MD Data"
 
 All scripts are written by [Sam Berry](https://sam-berry.com/). If you use any code from here, please cite:
 
-[insert citation here].
+Ray, S., Berry, S. P., Wilson, E. A., Zhang, C. H., Shekhar, M., Singharoy, A., & Gaudet, R. (2022). High-resolution structures map the metal import pathway in an Nramp transporter. bioRxiv. doi: https://doi.org/10.1101/2022.09.08.507188
+
+[to be updated eventually]
