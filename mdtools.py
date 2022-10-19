@@ -3,6 +3,7 @@ import pandas as pd
 import mdtraj as md
 
 from sklearn.cluster import SpectralClustering
+from scipy.spatial.distance import cdist, pdist, squareform
 
 def selection_distance_matrix(traj, a, b):
 
